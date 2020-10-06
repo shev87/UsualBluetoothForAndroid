@@ -35,6 +35,7 @@ public class MainActivity extends AppCompatActivity {
         controllerBluetooth = new ControllerBluetooth();
         try {
             controllerBluetooth.init();
+
             //controllerBluetooth.write("\r\nIt's from my heart!");
         } catch (Exception e) {
             textView.append("\r\n" + e.getMessage());
@@ -55,7 +56,7 @@ public class MainActivity extends AppCompatActivity {
             }
         };
         button.setOnClickListener(onClickListener);
-        //controllerBluetooth.run();
+        //textView2.setText(controllerBluetooth.myBluetoothService.s);
     }
 
 

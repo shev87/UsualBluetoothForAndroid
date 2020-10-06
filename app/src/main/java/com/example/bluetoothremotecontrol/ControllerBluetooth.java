@@ -23,6 +23,8 @@ public class ControllerBluetooth {
     private TextView textView2;
     private BluetoothAdapter bluetooth;
     private Set<BluetoothDevice> pairedDevices;
+    public BluetoothSocket socket;
+    public MyBluetoothService myBluetoothService;
 
     public InputStream getInStream() {
         return inStream;
@@ -43,11 +45,13 @@ public class ControllerBluetooth {
                     }
                     textView.append("\r\n");
                     try {
-                        BluetoothSocket socket = device.createRfcommSocketToServiceRecord(uuids[0].getUuid());
+                        socket = device.createRfcommSocketToServiceRecord(uuids[0].getUuid());
                         socket.connect();
                         outputStream = socket.getOutputStream();
                         inStream = socket.getInputStream();
                         textView.append("\r\n" + "Connection is OK!!!");
+
+                        myBluetoothService = new MyBluetoothService(socket);
 
                     } catch (Exception e) {
                         MainActivity.textView.append("\r\n" + e.getMessage() + e.getCause());
@@ -62,27 +66,30 @@ public class ControllerBluetooth {
     }
 
     public void write(String s) throws IOException {
-        outputStream.write(s.getBytes());
-    }
-
-    public void run() {
-        final int BUFFER_SIZE = 1024;
-        byte[] buffer = new byte[BUFFER_SIZE];
-        int bytes = 0;
-        int b = BUFFER_SIZE;
-
-        while (true) {
-            try {
-                bytes = inStream.read(buffer, bytes, BUFFER_SIZE - bytes);
-                if (bytes > 0){
-                    String s = new String(buffer);
-                    textView2.setText(s);
-                }
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
+        synchronized (this) {
+            outputStream.write(s.getBytes());
         }
+
     }
+
+//    public void run() {
+//        final int BUFFER_SIZE = 1024;
+//        byte[] buffer = new byte[BUFFER_SIZE];
+//        int bytes = 0;
+//        int b = BUFFER_SIZE;
+//
+//        while (true) {
+//            try {
+//                bytes = inStream.read(buffer, bytes, BUFFER_SIZE - bytes);
+//                if (bytes > 0){
+//                    String s = new String(buffer);
+//                    textView2.setText(s);
+//                }
+//            } catch (IOException e) {
+//                e.printStackTrace();
+//            }
+//        }
+//    }
 
     private void getBluetooth() {
 
