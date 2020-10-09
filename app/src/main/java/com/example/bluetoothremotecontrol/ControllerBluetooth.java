@@ -1,5 +1,6 @@
 package com.example.bluetoothremotecontrol;
 
+import android.app.Activity;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothSocket;
@@ -16,7 +17,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 
-public class ControllerBluetooth {
+public class ControllerBluetooth extends Activity {
     private OutputStream outputStream;
     private InputStream inStream;
     private TextView textView;
@@ -25,6 +26,9 @@ public class ControllerBluetooth {
     private Set<BluetoothDevice> pairedDevices;
     public BluetoothSocket socket;
     public MyBluetoothService myBluetoothService;
+    private static final UUID MY_UUID_SECURE = UUID.fromString("00001101-0000-1000-8000-00805F9B34FB");
+    private static final UUID MY_UUID_INSECURE = UUID.fromString("00001101-0000-1000-8000-00805F9B34FB");
+    private final static String TAG = "tag";
 
     public InputStream getInStream() {
         return inStream;
@@ -45,10 +49,14 @@ public class ControllerBluetooth {
                     }
                     textView.append("\r\n");
                     try {
+                        //socket = bluetooth.listenUsingRfcommWithServiceRecord(device.getName(), uuids[0].getUuid()).accept();
+                        Log.i(TAG, "start to create socket");
                         socket = device.createRfcommSocketToServiceRecord(uuids[0].getUuid());
+                        Log.i(TAG, "try to connect");
                         socket.connect();
+                        Log.i(TAG, "success connecting");
                         outputStream = socket.getOutputStream();
-                        inStream = socket.getInputStream();
+                        // inStream = socket.getInputStream();
                         textView.append("\r\n" + "Connection is OK!!!");
 
                         myBluetoothService = new MyBluetoothService(socket);
@@ -124,6 +132,7 @@ public class ControllerBluetooth {
         textView = MainActivity.textView;
         textView2 = MainActivity.textView2;
         bluetooth = BluetoothAdapter.getDefaultAdapter();
+
         getBluetooth();
         searchPairedDevices();
     }
